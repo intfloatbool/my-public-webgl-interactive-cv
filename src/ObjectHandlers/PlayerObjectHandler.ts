@@ -261,6 +261,10 @@ export class PlayerObjectHandler extends ObjectHandlerBase {
             }
         }
 
+        if(this._forcedPlayerSpeed) {
+            targetPlayerSpeed = this._forcedPlayerSpeed;
+        }
+
         // Do not let player reach out the box from start
         if(targetPlayerSpeed < 0)  {
             
@@ -274,14 +278,9 @@ export class PlayerObjectHandler extends ObjectHandlerBase {
             
             if(player.position.z > this._lastTargetPosition.z ) {
                 targetPlayerSpeed = 0;
-            }
-            
+            }   
         }
         
-
-        if(this._forcedPlayerSpeed) {
-            targetPlayerSpeed = this._forcedPlayerSpeed;
-        }
         
         const playerFrameSpeed = this.GetPlayerSpeedLoop(targetPlayerSpeed, deltaTime);
         player.translateZ(playerFrameSpeed);
