@@ -1,21 +1,22 @@
 import axios from "axios";
-import THREE, { Color, Group, Mesh, MeshBasicMaterial, PlaneGeometry, ShaderMaterial, Vector3 } from "three";
+import THREE, { Color, Group, LoadingManager, Mesh, MeshBasicMaterial, PlaneGeometry, ShaderMaterial, Vector3 } from "three";
 import { degToRad, radToDeg } from "three/src/math/MathUtils";
 import { FbxAssetLoader } from "../AssetLoaders/FbxAssetLoader";
 import { TextureAssetLoader } from "../AssetLoaders/TextureAssetLoader";
 import { DegreesToRadians } from "../Utils/IFBMath";
 
 export class TerrainObjectCreator {
+    private _loadingManager: THREE.LoadingManager;
 
 
-    constructor() {
-
+    constructor(loadingManager: LoadingManager) {
+        this._loadingManager = loadingManager;
     }
 
     async CreateGlowShaderMaterialAsync(): Promise<ShaderMaterial> {
 
         const glowTexture = await new TextureAssetLoader(
-            "Textures/neon_texture_0.jpg"
+            "Textures/neon_texture_0.jpg", this._loadingManager
         ).LoadAsync();
 
         const fragShaderResonse = await axios.get("./assets/Shaders/NeonGlow/NeonGlowFrag.glsl");
@@ -47,7 +48,7 @@ export class TerrainObjectCreator {
         
 
         return new Promise(async (res, rej) => {
-            const roadTexture = await new TextureAssetLoader("Textures/retro_road_pattern.jpg").LoadAsync();
+            const roadTexture = await new TextureAssetLoader("Textures/retro_road_pattern.jpg", this._loadingManager).LoadAsync();
    
             /*
             terrainModel.traverse((child) => {
@@ -55,7 +56,7 @@ export class TerrainObjectCreator {
             });
             */
 
-            const roadModel = await new FbxAssetLoader("Models/retro_road.fbx").LoadAsync();
+            const roadModel = await new FbxAssetLoader("Models/retro_road.fbx", this._loadingManager).LoadAsync();
 
 
             const roadMaterial = new MeshBasicMaterial({
@@ -63,7 +64,7 @@ export class TerrainObjectCreator {
                 map: roadTexture
             });
 
-            const neonTexture = await new TextureAssetLoader("Textures/neon_texture_0.jpg").LoadAsync();
+            const neonTexture = await new TextureAssetLoader("Textures/neon_texture_0.jpg", this._loadingManager).LoadAsync();
 
 
             const neonMaterial = await this.CreateGlowShaderMaterialAsync();

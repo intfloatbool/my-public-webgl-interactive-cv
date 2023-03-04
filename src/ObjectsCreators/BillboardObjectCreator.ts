@@ -1,4 +1,4 @@
-import THREE, { BoxGeometry, Color, Group, Material, Mesh, MeshBasicMaterial, MeshStandardMaterial, MeshToonMaterial, PlaneGeometry, ShaderMaterial, Texture, Vector3 } from "three";
+import THREE, { BoxGeometry, Color, Group, LoadingManager, Material, Mesh, MeshBasicMaterial, MeshStandardMaterial, MeshToonMaterial, PlaneGeometry, ShaderMaterial, Texture, Vector3 } from "three";
 import { degToRad, radToDeg } from "three/src/math/MathUtils";
 import { FbxAssetLoader } from "../AssetLoaders/FbxAssetLoader";
 import { TextureAssetLoader } from "../AssetLoaders/TextureAssetLoader";
@@ -11,15 +11,15 @@ import { FontLoader } from 'three/examples/jsm/loaders/FontLoader'
 import axios from "axios";
 export class BillboardObjectCreator {
 
-
-    constructor() {
-
+    private _loadingManager: LoadingManager;
+    constructor(loadingManager: LoadingManager) {
+        this._loadingManager = loadingManager;
     }
 
     async CreateGlowShaderMaterialAsync(): Promise<ShaderMaterial> {
 
         const glowTexture = await new TextureAssetLoader(
-            "Textures/neon_texture_1.jpg"
+            "Textures/neon_texture_1.jpg", this._loadingManager
         ).LoadAsync();
 
         const fragShaderResonse = await axios.get("./assets/Shaders/NeonGlow/NeonGlowFrag.glsl");
@@ -74,7 +74,7 @@ export class BillboardObjectCreator {
 
                 if(isExists)
                 {
-                    const texture = await new TextureAssetLoader(texturePath).LoadAsync();
+                    const texture = await new TextureAssetLoader(texturePath, this._loadingManager).LoadAsync();
                     adTexturesArr.push(texture);
                 }
                 else {
@@ -82,7 +82,7 @@ export class BillboardObjectCreator {
                 }
             }
             
-            const billboardTextureMain = await new TextureAssetLoader("Textures/dark_build_gradient.jpg").LoadAsync();
+            const billboardTextureMain = await new TextureAssetLoader("Textures/dark_build_gradient.jpg", this._loadingManager).LoadAsync();
 
             
             const billboardMaterial = new MeshBasicMaterial({
@@ -97,7 +97,7 @@ export class BillboardObjectCreator {
 
             for(let i = 0; i < billboardsCount; i++) {
                 
-                const billboardGroup= await new FbxAssetLoader("Models/billboard.fbx").LoadAsync();
+                const billboardGroup= await new FbxAssetLoader("Models/billboard.fbx", this._loadingManager).LoadAsync();
 
                 const adMaterial = new MeshBasicMaterial({
                     color: new Color(1, 1, 1),

@@ -7,9 +7,9 @@ export class FbxAssetLoader extends AssetLoaderBase<Group> {
 
     private _loader: FBXLoader;
 
-    constructor(realtivePath: string) {
-        super(realtivePath);
-        this._loader = new FBXLoader();
+    constructor(realtivePath: string, loadingManager: THREE.LoadingManager) {
+        super(realtivePath, loadingManager);
+        this._loader = new FBXLoader(loadingManager);
     }
 
     async LoadAsync(onProgress?: (normalizedPercent: number) => void) : Promise<Group>  {
