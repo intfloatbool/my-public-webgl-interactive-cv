@@ -27,12 +27,24 @@ let G_MainCamera: PerspectiveCamera;
 let G_InputService: InputService;
 let G_CameraService: MainCameraService;
 
-initializationAndStartAsync().then(() => {
-    console.log("Done!");
-}).catch((err) => {
-    console.error(err);
-})
+const G_LoadingManager = new THREE.LoadingManager();
+const progressBarElement = document.getElementById("progress-bar");
 
+document.addEventListener("DOMContentLoaded", () => {
+    
+    console.log("Project START_LOADING");
+    SetLoadingValue(10);
+    initializationAndStartAsync().then(() => {
+        console.log("Project DONE_LOADING");
+    }).catch((err) => {
+        console.error(err);
+    });
+});
+
+
+function SetLoadingValue(loadingValue: number) {
+    progressBarElement?.setAttribute("value", loadingValue.toString())
+}
 
 async function initializationAndStartAsync()
 {
@@ -43,6 +55,7 @@ async function initializationAndStartAsync()
     {
         throw new Error("initializationAndStartAsync() Some Error in initDataAsync() ! -> " + err);
     }
+    SetLoadingValue(50);
 
     try {
         await loadAssetsAsync();
@@ -51,12 +64,34 @@ async function initializationAndStartAsync()
         throw new Error("initializationAndStartAsync() Some Error in loadAssetsAsync() ! -> " + err);
     }
 
+    SetLoadingValue(80);
+
     try {
         await setupSceneAsync();
     } catch(err)
     {
         throw new Error("initializationAndStartAsync() Some Error in setupSceneAsync() ! -> " + err);
     }
+
+    const audio = document.createElement("audio") as HTMLAudioElement;
+    await new Promise((res, rej) => {
+        setTimeout(res, 500);
+    })
+    audio.src = "assets/Music/best_synthwave_music.mp3";
+    audio.volume = 0.2;
+    audio.autoplay = true;
+    audio.loop = true;
+    await new Promise((res, rej) => {
+        setTimeout(res, 500);
+    })
+    try {
+        audio.play();
+    } catch(err) {
+
+    }
+    
+
+    SetLoadingValue(90);
     
     try {
         startRendering();
@@ -66,11 +101,12 @@ async function initializationAndStartAsync()
     }
 
     
-    const audio = document.createElement("audio") as HTMLAudioElement;
-    audio.src = "assets/Music/best_synthwave_music.mp3";
-    audio.volume = 0.2;
-    audio.loop = true;
-    audio.play();
+    
+
+    SetLoadingValue(100);
+
+    const progressBarContainer = document.querySelector(".progress-bar-container");
+    progressBarContainer?.remove();
     
 }
 
@@ -124,7 +160,7 @@ async function loadAssetsAsync() {
 
     console.log("loadAssetsAsync() Is Running!")
     
-    const terrainModelCreationPromise = new TerrainObjectCreator().CreateAsync();
+    const terrainModelCreationPromise = new TerrainObjectCreator(G_LoadingManager).CreateAsync();
     const skyBoxTexturePromise = await new CubeMapLoader([
         "Textures/SkyBox_0/sky_rt.jpg",
         "Textures/SkyBox_0/sky_lt.jpg",
@@ -133,14 +169,14 @@ async function loadAssetsAsync() {
         "Textures/SkyBox_0/sky_ft.jpg",
         "Textures/SkyBox_0/sky_bk.jpg",
         
-    ]).LoadAsync();
+    ], G_LoadingManager).LoadAsync();
 
     const [ terrainModel, skyBoxTexture ] = await Promise.all([terrainModelCreationPromise, skyBoxTexturePromise]);
     G_SkyBoxTexture = skyBoxTexture;
 
-    const player = await new PlayerObjectCreator(skyBoxTexture).CreateAsync();
+    const player = await new PlayerObjectCreator(skyBoxTexture, G_LoadingManager).CreateAsync();
 
-    const billboards = await new BillboardObjectCreator().CreateAsync();
+    const billboards = await new BillboardObjectCreator(G_LoadingManager).CreateAsync();
     const billboardsRoot = new Group();
     for(let billboard of billboards) {
         billboardsRoot.add(billboard);

@@ -13,10 +13,10 @@ import { CubeTextureLoader } from "three";
 export class CubeMapLoader extends AssetLoaderBase<THREE.CubeTexture> {
     private _cubeMapsPath: Array<string>;
     private _cubeMapTextureLoader: CubeTextureLoader;
-    constructor(cubeMapsPath: Array<string>) {
-        super("");
+    constructor(cubeMapsPath: Array<string>, loadingManager: THREE.LoadingManager) {
+        super("", loadingManager);
         this._cubeMapsPath = cubeMapsPath;
-        this._cubeMapTextureLoader = new CubeTextureLoader();
+        this._cubeMapTextureLoader = new CubeTextureLoader(loadingManager);
     }
 
     async LoadAsync(onProgress?: (normalizedPercent: number) => void) : Promise<THREE.CubeTexture> {

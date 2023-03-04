@@ -5,10 +5,10 @@ import { AssetLoaderBase } from "./AssetLoaderBase";
 export class TextureAssetLoader extends AssetLoaderBase<THREE.Texture> {
 
     private _textureLoader: THREE.TextureLoader;
-    constructor(realtivePath: string) {
+    constructor(realtivePath: string, loadingManager: THREE.LoadingManager) {
 
-        super(realtivePath);
-        this._textureLoader = new TextureLoader();
+        super(realtivePath, loadingManager);
+        this._textureLoader = new TextureLoader(loadingManager);
     }
 
     async LoadAsync(onProgress?: (normalizedPercent: number) => void) : Promise<THREE.Texture> {

@@ -1,5 +1,5 @@
 import axios from "axios";
-import THREE, { BoxGeometry, CubeTexture, Group, IUniform, Light, Material, Mesh, MeshBasicMaterial, MeshStandardMaterial, PointLight, ShaderMaterial, Texture, Vector3, Vector4 } from "three";
+import THREE, { BoxGeometry, CubeTexture, Group, IUniform, Light, LoadingManager, Material, Mesh, MeshBasicMaterial, MeshStandardMaterial, PointLight, ShaderMaterial, Texture, Vector3, Vector4 } from "three";
 import { FbxAssetLoader } from "../AssetLoaders/FbxAssetLoader";
 import { TextureAssetLoader } from "../AssetLoaders/TextureAssetLoader";
 
@@ -20,8 +20,10 @@ const BACK_RIGHT_WHEEL    = "WheelBackRight";
 export class PlayerObjectCreator {
 
     private _cubeMapTexture: CubeTexture
-    constructor(cubeMapTexture: CubeTexture) {
+    private _loadingManager: THREE.LoadingManager;
+    constructor(cubeMapTexture: CubeTexture, loadingManager: LoadingManager) {
         this._cubeMapTexture = cubeMapTexture;
+        this._loadingManager = loadingManager;
     }
 
     trySetupMaterialForMesh(mesh: Mesh, materials: Map<string, Material>) {
@@ -32,7 +34,7 @@ export class PlayerObjectCreator {
     async CreateGlassShaderMaterialAsync() : Promise<ShaderMaterial> {
 
         const glassMainTexture = await new TextureAssetLoader(
-            "Textures/Ferrari/GlassBlue.jpg"
+            "Textures/Ferrari/GlassBlue.jpg", this._loadingManager
         ).LoadAsync();
 
         const fragShaderResonse = await axios.get("./assets/Shaders/Glass/GlassFrag.glsl");
@@ -60,10 +62,10 @@ export class PlayerObjectCreator {
 
     async CreateBodyShaderMaterialAsync(): Promise<ShaderMaterial> {
 
-        const noiseTexture = await new TextureAssetLoader("Textures/noise_texture.jpg").LoadAsync()
+        const noiseTexture = await new TextureAssetLoader("Textures/noise_texture.jpg", this._loadingManager).LoadAsync()
 
         const bodyTexture = await new TextureAssetLoader(
-            "Textures/Ferrari/Ferrari_texure.jpg"
+            "Textures/Ferrari/Ferrari_texure.jpg", this._loadingManager
         ).LoadAsync();
 
         const fragShaderResonse = await axios.get("./assets/Shaders/PlayerFrag.glsl");
@@ -95,23 +97,23 @@ export class PlayerObjectCreator {
     async CreateAsync(onProgress?: (normalizedPercent: number) => void) : Promise<Mesh | Group>  {
         
         const carModel = await new FbxAssetLoader(
-            "Models/Ferrari.fbx"
+            "Models/Ferrari.fbx", this._loadingManager
         ).LoadAsync();
 
         const bodyTexture = await new TextureAssetLoader(
-            "Textures/Ferrari/Ferrari_texure.jpg"
+            "Textures/Ferrari/Ferrari_texure.jpg", this._loadingManager
         ).LoadAsync();
 
         const lightsTexture = await new TextureAssetLoader(
-            "Textures/Ferrari/CarLightWhite.jpg"
+            "Textures/Ferrari/CarLightWhite.jpg", this._loadingManager
         ).LoadAsync();
 
         const glassMainTexture = await new TextureAssetLoader(
-            "Textures/Ferrari/GlassBlue.jpg"
+            "Textures/Ferrari/GlassBlue.jpg", this._loadingManager
         ).LoadAsync();
 
         const glassSideTexture = await new TextureAssetLoader(
-            "Textures/Ferrari/GlassNeon.jpg"
+            "Textures/Ferrari/GlassNeon.jpg", this._loadingManager
         ).LoadAsync();
 
         /*
